@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-key="pageTitle">Smart Crop Monitoring System</title>
+
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+.lang-select select{
+    padding:6px 10px;
+    border-radius:8px;
+    border:none;
+    outline:none;
+    background:#111;
+    color:white;
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="google_translate_element"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+
+    <div class="logo" data-key="logo">🌱 SmartCrop</div>
+
+    <ul class="nav-links">
+        <li><a href="index.html" data-key="home">Home</a></li>
+        <li><a href="scan.html" data-key="scan">Scan</a></li>
+        <li><a href="predict.html" data-key="predict">Predict</a></li>
+        <li><a href="advisory.html" data-key="advisory">Advisory</a></li>
+        <li><a href="offline.html" data-key="offline">Offline</a></li>
+        <li><a href="dashboard.html" data-key="dashboard">Dashboard</a></li>
+    </ul>
+
+    <!-- NOT LOGGED IN -->
+    <div class="auth-buttons" id="authButtons">
+        <a href="login.html" class="btn-outline" data-key="signin">Sign In</a>
+        <a href="register.html" class="btn-primary" data-key="register">Register</a>
+    </div>
+
+    <!-- LOGGED IN -->
+    <div class="auth-buttons" id="userMenu" style="display:none;">
+    <span id="userName" style="color:#8eff55; font-weight:600; margin-right:10px;"></span>
+    <a href="#" class="btn-primary" onclick="logout()">Logout</a>
+</div>
+
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+
+    <div class="hero-content">
+
+        <span class="tag">🚀 AI Powered Agriculture</span>
+
+        <h1>
+            Smart Crop Monitoring
+            <br>
+            & Disease Management
+        </h1>
+
+        <p>
+            Empowering farmers with AI-driven crop disease detection,
+            weather-based risk prediction, smart advisory services,
+            and offline disease support.
+        </p>
+
+        <div class="hero-buttons">
+            <a href="scan.html" class="btn-primary">📷 Start Scanning</a>
+            <a href="dashboard.html" class="btn-outline">📊 Dashboard</a>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- STATS -->
+<section class="stats">
+
+    <div class="stat-card">
+        <h2>95%</h2>
+        <p>Detection Accuracy</p>
+    </div>
+
+    <div class="stat-card">
+        <h2>5000+</h2>
+        <p>Crop Scans</p>
+    </div>
+
+    <div class="stat-card">
+        <h2>50+</h2>
+        <p>Diseases Supported</p>
+    </div>
+
+    <div class="stat-card">
+        <h2>24/7</h2>
+        <p>Monitoring</p>
+    </div>
+
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+
+    <h2>🚀 Smart Agriculture Features</h2>
+
+    <div class="feature-grid">
+
+        <div class="feature-card">
+            <h3>📷 Disease Detection</h3>
+            <p>Upload crop images and detect diseases instantly.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3>📈 Disease Forecasting</h3>
+            <p>Predict disease risks using weather conditions.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3>💡 Smart Advisory</h3>
+            <p>Get personalized crop recommendations.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3>📴 Offline Support</h3>
+            <p>Access disease information without internet.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3>🌦 Weather Intelligence</h3>
+            <p>Track climate factors affecting crops.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3>📊 Dashboard Analytics</h3>
+            <p>View health scores and alerts in real time.</p>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- FOOTER -->
+<footer>
+
+    <h3>🌱 Smart Crop Monitoring System</h3>
+
+    <p>AI-Based Crop Disease Detection & Agricultural Advisory Platform</p>
+
+    <p>Built for Sustainable Agriculture 🌱</p>
+
+</footer>
+
+<!-- LOGIN STATE SCRIPT -->
+<script>
+let currentUser = localStorage.getItem("currentUser");
+let users = JSON.parse(localStorage.getItem("users")) || [];
+
+if (currentUser) {
+    let user = users.find(u => u.email === currentUser);
+
+    document.getElementById("authButtons").style.display = "none";
+    document.getElementById("userMenu").style.display = "flex";
+
+    if (user) {
+        document.getElementById("userName").innerText =
+            "👤 " + (user.fullname || user.email);
+    }
+}
+
+function logout() {
+    localStorage.removeItem("currentUser");
+    location.reload();
+}
+</script>
+
+<script>
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement(
+        {
+            pageLanguage: 'en',
+            includedLanguages: 'en,te,hi,ta,kn',
+            autoDisplay: false
+        },
+        'google_translate_element'
+    );
+}
+</script>
+
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>

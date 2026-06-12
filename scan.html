@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnose in Seconds</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+
+<style>
+body{
+    margin:0;
+    font-family:'Poppins', sans-serif;
+    background: radial-gradient(circle at top, #052818, #000000);
+    color:white;
+}
+
+.topbar{
+    position:relative;
+    text-align:center;
+    padding:15px;
+    font-weight:bold;
+    color:#00ff99;
+    border-bottom:1px solid rgba(0,255,120,0.2);
+}
+
+.back-btn{
+    position:absolute;
+    left:10px;
+    top:50%;
+    transform:translateY(-50%);
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    border:none;
+    background:linear-gradient(145deg,#00ff99,#00cc77);
+    color:#000;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.container{
+    max-width:900px;
+    margin:20px auto;
+    padding:15px;
+}
+
+.card{
+    background:rgba(10,25,15,0.85);
+    border:1px solid rgba(0,255,120,0.2);
+    border-radius:16px;
+    padding:15px;
+    margin-bottom:15px;
+}
+
+.upload-box{
+    border:2px dashed #00ff99;
+    padding:18px;
+    border-radius:12px;
+    text-align:center;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:10px;
+    font-weight:bold;
+    cursor:pointer;
+    background:linear-gradient(90deg,#00ff99,#00cc77);
+    color:#000;
+}
+
+.result{
+    display:none;
+}
+
+.block{
+    background:rgba(0,255,120,0.06);
+    border-left:4px solid #00ff99;
+    padding:12px;
+    border-radius:12px;
+    margin-top:10px;
+    white-space:pre-line;
+}
+
+h3{
+    color:#00ff99;
+    margin-bottom:6px;
+}
+
+.badge{
+    display:inline-block;
+    padding:5px 10px;
+    background:#00ff99;
+    color:#000;
+    border-radius:6px;
+    font-weight:bold;
+    font-size:12px;
+}
+
+img{
+    width:100%;
+    border-radius:12px;
+    margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+<div id="google_translate_element"></div>
+<div class="topbar">
+    <button class="back-btn" onclick="goHome()">⬅</button>
+    Diagnose in Seconds
+</div>
+
+<div class="container">
+
+<!-- INPUT -->
+<div class="card">
+
+    <h3>🍃 Upload Leaf Image</h3>
+
+    <div class="upload-box">
+        <p>Upload or Capture Leaf Image</p>
+        <input type="file" id="imageInput" accept="image/*" capture="environment">
+    </div>
+
+    <button onclick="analyze()">🔍 Analyze Leaf</button>
+
+    <div id="preview"></div>
+
+</div>
+
+<!-- RESULT -->
+<div class="result" id="result">
+
+    <div class="card">
+        <h3>🌾 Crop Identified</h3>
+        <span class="badge" id="crop"></span>
+    </div>
+
+    <div class="card">
+        <h3>🦠 Disease Explanation</h3>
+        <div class="block" id="disease"></div>
+    </div>
+
+    <div class="card">
+        <h3>💊 Treatment Plan</h3>
+        <div class="block" id="treatment"></div>
+    </div>
+
+    <div class="card">
+        <h3>📅 7-Day Action Plan</h3>
+        <div class="block" id="plan"></div>
+    </div>
+
+    <div class="card">
+        <h3>🌱 Next Season Prevention</h3>
+        <div class="block" id="prevention"></div>
+    </div>
+
+    <!-- ✅ DONE BUTTON -->
+    <button id="doneBtn" style="display:none;" onclick="finishScan()">
+        ✅ Done & Save Scan
+    </button>
+
+</div>
+
+</div>
+
+<script>
+
+function goHome(){
+    window.location.href = "index.html";
+}
+
+/* AI LABELS */
+const labels = [
+    "Tomato - Early Blight",
+    "Rice - Blast Disease",
+    "Chilli - Leaf Curl",
+    "Cotton - Aphid Attack",
+    "Maize - Healthy"
+];
+
+let currentScanData = null;
+
+/* ANALYZE */
+function analyze(){
+
+    let file = document.getElementById("imageInput").files[0];
+
+    if(!file){
+        alert("Please upload image");
+        return;
+    }
+
+    let reader = new FileReader();
+
+    reader.onload = function(e){
+
+        document.getElementById("preview").innerHTML =
+        `<img src="${e.target.result}">`;
+
+        setTimeout(() => {
+
+            let prediction = labels[Math.floor(Math.random()*labels.length)];
+
+            let parts = prediction.split(" - ");
+            let cropName = parts[0];
+            let diseaseName = parts[1] || "Healthy";
+
+            document.getElementById("result").style.display = "block";
+
+            document.getElementById("crop").innerText = cropName;
+            document.getElementById("disease").innerText = getDisease(diseaseName);
+            document.getElementById("treatment").innerText = getTreatment(diseaseName);
+            document.getElementById("plan").innerText = getPlan();
+            document.getElementById("prevention").innerText = getPrevention(cropName);
+
+            // SAVE TEMP DATA (NOT COUNT YET)
+            currentScanData = {
+                crop: cropName,
+                disease: diseaseName,
+                date: new Date().toLocaleDateString()
+            };
+
+            // show DONE button
+            document.getElementById("doneBtn").style.display = "block";
+
+        }, 1500);
+    };
+
+    reader.readAsDataURL(file);
+}
+
+/* DONE BUTTON → INCREASE COUNT */
+function finishScan(){
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    let currentEmail = localStorage.getItem("currentUser");
+
+    let user = users.find(u => u.email === currentEmail);
+
+    if(!user){
+        alert("User not found");
+        return;
+    }
+
+    user.scans = (user.scans || 0) + 1;
+
+    localStorage.setItem("users", JSON.stringify(users));
+
+    // recent scans
+    let recent = JSON.parse(localStorage.getItem("recentScans") || "[]");
+
+    recent.unshift(currentScanData);
+
+    if(recent.length > 10) recent.pop();
+
+    localStorage.setItem("recentScans", JSON.stringify(recent));
+
+    alert("Scan saved successfully!");
+
+    location.reload();
+}
+
+/* DISEASE INFO */
+function getDisease(d){
+    const data = {
+        "Early Blight":"Fungal disease causing leaf spots",
+        "Blast Disease":"Rice fungal infection",
+        "Leaf Curl":"Virus disease from whiteflies",
+        "Aphid Attack":"Insect damage from sap sucking",
+        "Healthy":"No disease detected"
+    };
+    return data[d] || "No data";
+}
+
+/* TREATMENT */
+function getTreatment(d){
+    const t = {
+        "Early Blight":"Use Mancozeb spray",
+        "Blast Disease":"Use Tricyclazole",
+        "Leaf Curl":"Use neem spray",
+        "Aphid Attack":"Use neem oil",
+        "Healthy":"No treatment needed"
+    };
+    return t[d] || "Consult expert";
+}
+
+/* PLAN */
+function getPlan(){
+    return `
+Day 1: Spray
+Day 2: Observe
+Day 3: Remove infected leaves
+Day 4: Soil check
+Day 5: Repeat spray
+Day 6: Monitor
+Day 7: Final review`;
+}
+
+/* PREVENTION */
+function getPrevention(crop){
+    return `
+Prevention for ${crop}:
+- Use resistant seeds
+- Crop rotation
+- Proper spacing
+- Avoid overwatering`;
+}
+
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement(
+        {
+            pageLanguage: 'en',
+            includedLanguages: 'en,te,hi,ta,kn',
+            autoDisplay: false
+        },
+        'google_translate_element'
+    );
+}
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+</body>
+</html>

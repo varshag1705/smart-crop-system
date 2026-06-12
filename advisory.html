@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Advisory</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+body{
+    margin:0;
+    font-family:'Poppins', sans-serif;
+    background: radial-gradient(circle at top, #052818, #000);
+    color:white;
+}
+
+.topbar{
+    position:relative;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:12px;
+    background:rgba(0,0,0,0.6);
+    border-bottom:1px solid rgba(0,255,120,0.2);
+}
+
+.back-btn{
+    position:absolute;
+    left:10px;
+    top:50%;
+    transform:translateY(-50%);
+    width:32px;height:32px;
+    border-radius:50%;
+    border:none;
+    background:linear-gradient(145deg,#00ff99,#00cc77);
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.title{
+    color:#00ff99;
+    font-weight:bold;
+}
+
+.container{
+    max-width:900px;
+    margin:20px auto;
+    padding:15px;
+}
+
+.card{
+    background:rgba(10,25,15,0.85);
+    border-radius:16px;
+    padding:15px;
+    margin-bottom:15px;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border-radius:8px;
+    border:none;
+    background:#111;
+    color:white;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.btn{ background:linear-gradient(90deg,#00ff99,#00cc77); }
+.mapbtn{ background:#00cc77; }
+
+.block{
+    background:rgba(0,255,120,0.06);
+    padding:12px;
+    border-radius:12px;
+    margin-top:10px;
+    border-left:4px solid #00ff99;
+}
+
+#map{
+    height:300px;
+    margin-top:10px;
+    border-radius:12px;
+}
+
+#result{
+    margin-top:15px;
+}
+</style>
+</head>
+
+<body>
+<div id="google_translate_element"></div>
+<div class="topbar">
+    <button class="back-btn" onclick="goHome()">⬅</button>
+    <div class="title">Smart Advisory</div>
+</div>
+
+<div class="container">
+
+<div class="card">
+    <h3>📍 Select Location</h3>
+    <input type="text" id="location" placeholder="Click map or type location">
+
+    <button class="mapbtn" onclick="initMap()">🗺 Load Map</button>
+    <div id="map"></div>
+
+    <button class="btn" onclick="getAdvisory()">📊 Get Advisory</button>
+</div>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+function goHome(){
+    window.location.href = "index.html";
+}
+
+let map;
+let marker;
+
+function initMap(){
+
+    if(map) return;
+
+    map = L.map('map').setView([17.3850,78.4867],6);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+        attribution:'OpenStreetMap'
+    }).addTo(map);
+
+    map.on('click', async function(e){
+
+        let lat = e.latlng.lat;
+        let lon = e.latlng.lng;
+
+        if(marker) map.removeLayer(marker);
+        marker = L.marker([lat,lon]).addTo(map);
+
+        let res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+        let data = await res.json();
+
+        let city = data.address.city || data.address.town || data.address.village || "Selected Area";
+
+        document.getElementById("location").value = city;
+    });
+}
+
+async function getAdvisory(){
+
+    let loc = document.getElementById("location").value.trim();
+
+    if(!loc){
+        alert("Select location");
+        return;
+    }
+
+    document.getElementById("result").innerHTML = "Loading...";
+
+    try{
+
+        let geo = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(loc)}`);
+        let geoData = await geo.json();
+
+        if(!geoData.results || geoData.results.length === 0){
+            document.getElementById("result").innerHTML =
+            `<div class="card">❌ Location not found</div>`;
+            return;
+        }
+
+        let lat = geoData.results[0].latitude;
+        let lon = geoData.results[0].longitude;
+        let name = geoData.results[0].name;
+
+        let weather = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=precipitation_sum&timezone=auto`);
+        let w = await weather.json();
+
+        let temp = w.current_weather?.temperature ?? 30;
+        let wind = w.current_weather?.windspeed ?? 10;
+        let rain = w.daily?.precipitation_sum?.[0] ?? 0;
+
+        let crop = "";
+        let pest = "";
+        let pestLevel = "";
+        let advisory = "";
+
+        if(rain > 5){
+            crop = "Rice, Banana, Sugarcane, Coconut";
+            pest = "Fungal + insect activity possible";
+            pestLevel = "HIGH RISK";
+            advisory = "Ensure proper drainage and avoid water stagnation.";
+        }
+        else if(temp > 35){
+            crop = "Millets, Cotton, Groundnut, Maize";
+            pest = "Heat stress + leaf burn risk";
+            pestLevel = "MODERATE RISK";
+            advisory = "Increase irrigation and avoid midday farming.";
+        }
+        else{
+            crop = "Wheat, Maize, Vegetables, Pulses";
+            pest = "Normal pest activity";
+            pestLevel = "LOW RISK";
+            advisory = "Good conditions for sowing and crop growth.";
+        }
+
+        document.getElementById("result").innerHTML = `
+
+        <div class="card">
+            <h2 style="color:#00ff99;">🌍 ${name} Farm Report</h2>
+
+            <div class="block">🌡 Temperature: ${temp} °C</div>
+            <div class="block">💨 Wind: ${wind} km/h</div>
+            <div class="block">🌧 Rainfall: ${rain} mm</div>
+        </div>
+
+        <div class="card">
+            <h2 style="color:#00ff99;">🌾 Crops</h2>
+            <div class="block">${crop}</div>
+        </div>
+
+        <div class="card">
+            <h2 style="color:#00ff99;">🐛 Pest Risk (${pestLevel})</h2>
+            <div class="block">${pest}</div>
+        </div>
+
+        <div class="card">
+            <h2 style="color:#00ff99;">⚠ Advisory</h2>
+            <div class="block">${advisory}</div>
+        </div>
+
+        <div class="card">
+            <h2 style="color:#00ff99;">📊 Summary</h2>
+            <div class="block">
+                ✔ Location analyzed: ${name}<br>
+                ✔ Weather-based crop suggestion generated<br>
+                ✔ Pest risk calculated
+            </div>
+        </div>
+
+        `;
+
+    }catch(err){
+        document.getElementById("result").innerHTML =
+        `<div class="card">❌ Error fetching data</div>`;
+    }
+}
+
+</script>
+<script>
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement(
+        {
+            pageLanguage: 'en',
+            includedLanguages: 'en,te,hi,ta,kn',
+            autoDisplay: false
+        },
+        'google_translate_element'
+    );
+}
+</script>
+
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>

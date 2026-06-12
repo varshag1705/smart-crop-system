@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-key="registerTitle">Register - Smart Crop Monitoring</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+.register-container{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.register-card{
+    width:450px;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(15px);
+    border:1px solid rgba(142,255,85,.2);
+    border-radius:25px;
+    padding:40px;
+}
+
+.register-card h1{
+    text-align:center;
+    color:#8eff55;
+    margin-bottom:10px;
+}
+
+.register-card p{
+    text-align:center;
+    color:#d7d7d7;
+    margin-bottom:25px;
+}
+
+.input-group{
+    margin-bottom:18px;
+}
+
+.input-group label{
+    display:block;
+    margin-bottom:8px;
+    color:#8eff55;
+}
+
+.input-group input,
+.input-group select{
+    width:100%;
+    padding:14px;
+    border:none;
+    outline:none;
+    border-radius:12px;
+    background:#10281d;
+    color:white;
+}
+
+.register-btn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(135deg,#8eff55,#4fd62b);
+    color:black;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.home-link{
+    position:absolute;
+    top:20px;
+    left:20px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="google_translate_element"></div>
+
+<a href="index.html" class="btn-outline home-link">← Home</a>
+
+<div class="register-container">
+<div class="register-card">
+
+<h1>🌱 Create Account</h1>
+<p>Join Smart Crop Monitoring System</p>
+
+<form onsubmit="registerUser(event)">
+
+<div class="input-group">
+<label>Full Name</label>
+<input type="text" id="fullname" required>
+</div>
+
+<div class="input-group">
+<label>Email</label>
+<input type="email" id="email" required>
+</div>
+
+<div class="input-group">
+<label>Phone Number</label>
+<input type="tel" id="phone" required>
+</div>
+
+<div class="input-group">
+<label>Preferred Language</label>
+<select id="language">
+<option>English</option>
+<option>Telugu</option>
+<option>Hindi</option>
+<option>Tamil</option>
+<option>Kannada</option>
+</select>
+</div>
+
+<div class="input-group">
+<label>Password</label>
+<input type="password" id="password" required>
+</div>
+
+<div class="input-group">
+<label>Confirm Password</label>
+<input type="password" id="confirmPassword" required>
+</div>
+
+<button class="register-btn" type="submit">
+Create Account
+</button>
+
+</form>
+
+</div>
+</div>
+
+<script>
+function registerUser(event){
+    event.preventDefault();
+
+    let fullname = document.getElementById("fullname").value;
+    let email = document.getElementById("email").value;
+    let phone = document.getElementById("phone").value;
+    let language = document.getElementById("language").value;
+    let password = document.getElementById("password").value;
+    let confirmPassword = document.getElementById("confirmPassword").value;
+
+    if(password !== confirmPassword){
+        alert("Passwords do not match");
+        return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    let exists = users.find(u => u.email === email);
+    if(exists){
+        alert("User already exists");
+        return;
+    }
+
+    let newUser = {
+        fullname: fullname,
+        email: email,
+        phone: phone,
+        language: language,
+        password: password,
+        scans: 0
+    };
+
+    users.push(newUser);
+    localStorage.setItem("users", JSON.stringify(users));
+
+    // auto login
+    localStorage.setItem("currentUser", email);
+
+    alert("Account created successfully");
+
+    window.location.href = "dashboard.html";
+}
+</script>
+
+<script>
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement(
+        {
+            pageLanguage: 'en',
+            includedLanguages: 'en,te,hi,ta,kn',
+            autoDisplay: false
+        },
+        'google_translate_element'
+    );
+}
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-key="loginTitle">Login - Smart Crop Monitoring</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+.login-container{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.login-card{
+    width:420px;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(15px);
+    border:1px solid rgba(142,255,85,.2);
+    border-radius:25px;
+    padding:40px;
+    text-align:center;
+}
+
+.login-card h1{
+    color:#8eff55;
+    margin-bottom:10px;
+}
+
+.login-card p{
+    color:#d7d7d7;
+    margin-bottom:30px;
+}
+
+.input-group{
+    margin-bottom:20px;
+    text-align:left;
+}
+
+.input-group label{
+    display:block;
+    margin-bottom:8px;
+    color:#8eff55;
+}
+
+.input-group input{
+    width:100%;
+    padding:14px;
+    border:none;
+    outline:none;
+    border-radius:12px;
+    background:#10281d;
+    color:white;
+}
+
+.login-btn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(135deg,#8eff55,#4fd62b);
+    font-weight:700;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+.home-link{
+    position:absolute;
+    top:20px;
+    left:20px;
+}
+
+.extra-links{
+    margin-top:20px;
+}
+
+.extra-links a{
+    color:#8eff55;
+    text-decoration:none;
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="google_translate_element"></div>
+
+<!-- HOME -->
+<a href="index.html" class="btn-outline home-link">← Home</a>
+
+<div class="login-container">
+<div class="login-card">
+
+<h1>🌱 Welcome Back</h1>
+<p>Login to Smart Crop Monitoring System</p>
+
+<form onsubmit="loginUser(event)">
+
+<div class="input-group">
+<label>Email</label>
+<input type="email" id="email" required>
+</div>
+
+<div class="input-group">
+<label>Password</label>
+<input type="password" id="password" required>
+</div>
+
+<button type="submit" class="login-btn">
+Sign In
+</button>
+
+</form>
+
+<div class="extra-links">
+<p>
+Don't have an account?
+<a href="register.html">Register</a>
+</p>
+</div>
+
+</div>
+</div>
+
+<script>
+function loginUser(event){
+    event.preventDefault();
+
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    let user = users.find(u => u.email === email && u.password === password);
+
+    if(!user){
+        alert("Invalid email or password");
+        return;
+    }
+
+    // save current session
+    localStorage.setItem("currentUser", email);
+
+    alert("Login successful");
+
+    localStorage.setItem("currentUser", email);
+window.location.href = "index.html";
+}
+</script>
+
+<script>
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement(
+        {
+            pageLanguage: 'en',
+            includedLanguages: 'en,te,hi,ta,kn',
+            autoDisplay: false
+        },
+        'google_translate_element'
+    );
+}
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>
