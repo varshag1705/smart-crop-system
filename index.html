@@ -9,6 +9,49 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
+/* --- Precision Compact Top Left Translator Config --- */
+.top-left-translator {
+    position: fixed; /* Keeps it strictly floating in the exact viewport corner */
+    top: 15px;
+    left: 15px;
+    z-index: 9999;
+    display: inline-block;
+    max-width: 160px; /* Prevents full screen stretching */
+    height: auto;
+}
+
+/* Cleaning up Google's auto-generated banner spacing */
+.goog-te-gadget {
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 13px !important;
+    color: #fff !important;
+}
+.goog-te-gadget-simple {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+}
+
+/* NAVBAR MODIFICATIONS FOR CLEARANCE */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 8%;
+    background: rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.logo {
+    color: #8eff55; 
+    font-weight: bold; 
+    font-size: 24px; 
+    white-space: nowrap;
+    padding-left: 150px; /* Pushes the logo comfortably right of the floating translator */
+}
+
 .lang-select select{
     padding:6px 10px;
     border-radius:8px;
@@ -17,15 +60,20 @@
     background:#111;
     color:white;
 }
+
+@media (max-width: 850px) {
+    .top-left-translator { position: static; margin: 15px 0 10px 20px; }
+    .logo { padding-left: 0; }
+    .navbar { flex-direction: column; align-items: flex-start; gap: 15px; }
+}
 </style>
 
 </head>
 
-<body>
+<body style="background: #0b120c; color: #fff; font-family: 'Poppins', sans-serif;">
 
-<div id="google_translate_element"></div>
+<div class="top-left-translator" id="google_translate_element"></div>
 
-<!-- NAVBAR -->
 <nav class="navbar">
 
     <div class="logo" data-key="logo">🌱 SmartCrop</div>
@@ -39,21 +87,18 @@
         <li><a href="dashboard.html" data-key="dashboard">Dashboard</a></li>
     </ul>
 
-    <!-- NOT LOGGED IN -->
     <div class="auth-buttons" id="authButtons">
         <a href="login.html" class="btn-outline" data-key="signin">Sign In</a>
         <a href="register.html" class="btn-primary" data-key="register">Register</a>
     </div>
 
-    <!-- LOGGED IN -->
     <div class="auth-buttons" id="userMenu" style="display:none;">
-    <span id="userName" style="color:#8eff55; font-weight:600; margin-right:10px;"></span>
-    <a href="#" class="btn-primary" onclick="logout()">Logout</a>
-</div>
+        <span id="userName" style="color:#8eff55; font-weight:600; margin-right:10px;"></span>
+        <a href="#" class="btn-primary" onclick="logout()">Logout</a>
+    </div>
 
 </nav>
 
-<!-- HERO -->
 <section class="hero">
 
     <div class="hero-content">
@@ -81,7 +126,6 @@
 
 </section>
 
-<!-- STATS -->
 <section class="stats">
 
     <div class="stat-card">
@@ -106,7 +150,6 @@
 
 </section>
 
-<!-- FEATURES -->
 <section class="features">
 
     <h2>🚀 Smart Agriculture Features</h2>
@@ -147,7 +190,6 @@
 
 </section>
 
-<!-- FOOTER -->
 <footer>
 
     <h3>🌱 Smart Crop Monitoring System</h3>
@@ -158,7 +200,6 @@
 
 </footer>
 
-<!-- LOGIN STATE SCRIPT -->
 <script>
 let currentUser = localStorage.getItem("currentUser");
 let users = JSON.parse(localStorage.getItem("users")) || [];
@@ -187,6 +228,7 @@ function googleTranslateElementInit() {
         {
             pageLanguage: 'en',
             includedLanguages: 'en,te,hi,ta,kn',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE, // Inline dropdown configuration
             autoDisplay: false
         },
         'google_translate_element'
