@@ -8,6 +8,31 @@
 <link rel="stylesheet" href="style.css">
 
 <style>
+/* --- Precision Compact Top Left Translator Config --- */
+.top-left-translator {
+    position: fixed; /* Keeps it strictly floating in the exact viewport corner */
+    top: 15px;
+    left: 15px;
+    z-index: 9999;
+    display: inline-block;
+    max-width: 160px; /* Prevents full screen stretching */
+    height: auto;
+}
+
+/* Cleaning up Google's auto-generated banner spacing */
+.goog-te-gadget {
+    font-family: sans-serif !important;
+    font-size: 13px !important;
+    color: #fff !important;
+}
+.goog-te-gadget-simple {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+}
+
 .login-container{
     min-height:100vh;
     display:flex;
@@ -68,10 +93,11 @@
     margin-top:10px;
 }
 
+/* Shifted down slightly to clear space for the floating translator dropdown */
 .home-link{
     position:absolute;
-    top:20px;
-    left:20px;
+    top:60px;
+    left:15px;
 }
 
 .extra-links{
@@ -86,9 +112,10 @@
 
 </head>
 
-<body>
+<body style="background: #0b120c; color: #fff; font-family: sans-serif;">
 
-<div id="google_translate_element"></div>
+<!-- Compact mini translator widget boundary layout container -->
+<div class="top-left-translator" id="google_translate_element"></div>
 
 <!-- HOME -->
 <a href="index.html" class="btn-outline home-link">← Home</a>
@@ -147,9 +174,7 @@ function loginUser(event){
     localStorage.setItem("currentUser", email);
 
     alert("Login successful");
-
-    localStorage.setItem("currentUser", email);
-window.location.href = "index.html";
+    window.location.href = "index.html";
 }
 </script>
 
@@ -159,6 +184,7 @@ function googleTranslateElementInit() {
         {
             pageLanguage: 'en',
             includedLanguages: 'en,te,hi,ta,kn',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE, // Inline dropdown configuration
             autoDisplay: false
         },
         'google_translate_element'
