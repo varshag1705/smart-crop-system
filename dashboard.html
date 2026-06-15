@@ -8,6 +8,31 @@
 <link rel="stylesheet" href="style.css">
 
 <style>
+/* --- Precision Compact Top Left Translator Config --- */
+.top-left-translator {
+    position: fixed; /* Keeps it strictly floating in the exact viewport corner */
+    top: 15px;
+    left: 15px;
+    z-index: 9999;
+    display: inline-block;
+    max-width: 160px; /* Prevents full screen stretching */
+    height: auto;
+}
+
+/* Cleaning up Google's auto-generated banner spacing */
+.goog-te-gadget {
+    font-family: sans-serif !important;
+    font-size: 13px !important;
+    color: #fff !important;
+}
+.goog-te-gadget-simple {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+}
+
 .dashboard{ padding:40px 8%; }
 
 .dashboard-header{
@@ -41,7 +66,7 @@
 .stat-box h2{ color:#8eff55; font-size:40px; }
 .stat-box p{ margin-top:10px; color:#ddd; }
 
-.health-card, .alert-card, .recent-card{
+.health-card, .alert-card, .recent-card, .history-card{
     background:rgba(255,255,255,0.05);
     border-radius:20px;
     padding:30px;
@@ -71,14 +96,79 @@
 
 .healthy{ color:#8eff55; font-weight:600; }
 .risk{ color:#ff6868; font-weight:600; }
+
+/* NAVBAR SYSTEM ARCHITECTURE */
+.navbar {
+    display: flex;
+    align-items: center;
+    padding: 20px 8%;
+    background: rgba(0, 0, 0, 0.2);
+}
+.logo-area {
+    display: flex;
+    align-items: center;
+    padding-left: 150px; /* Pushes the main header content comfortably right of the small translator */
+}
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+    margin-left: 40px;
+}
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.history-card h3 {
+    color: #8eff55;
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+}
+.table-wrapper {
+    overflow-x: auto;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.95rem;
+    color: #ecf0f1;
+}
+th, td {
+    padding: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+th {
+    color: #a3e4d7;
+    font-weight: 600;
+    background: rgba(0,0,0,0.2);
+}
+
+@media (max-width: 850px) {
+    .top-left-translator { position: static; margin: 15px 0 10px 20px; }
+    .logo-area { padding-left: 0; }
+    .navbar { flex-direction: column; align-items: flex-start; gap: 15px; }
+    .nav-links { margin-left: 0; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 
-<body>
-<div id="google_translate_element"></div>
+<body style="background: #0b120c; color: #fff; font-family: sans-serif;">
+
+<!-- Compact mini translator widget boundary layout container -->
+<div class="top-left-translator" id="google_translate_element"></div>
+
 <!-- NAV -->
 <nav class="navbar">
-<div class="logo">🌱 SmartCrop</div>
+<div class="logo-area">
+    <div class="logo" style="color: #8eff55; font-weight: bold; font-size: 24px; white-space: nowrap;">🌱 SmartCrop</div>
+</div>
 
 <ul class="nav-links">
 <li><a href="index.html">Home</a></li>
@@ -90,14 +180,13 @@
 
 <div style="margin-left:auto; color:#8eff55; font-weight:600;">
 👤 <span id="userName"></span>
-<button onclick="logout()" style="margin-left:10px; padding:5px 10px; border:none; border-radius:8px; background:#ff4d4d; color:white;">
+<button onclick="logout()" style="margin-left:10px; padding:5px 10px; border:none; border-radius:8px; background:#ff4d4d; color:white; cursor:pointer;">
 Logout
 </button>
 </div>
-
 </nav>
 
-<!-- DASHBOARD -->
+<!-- DASHBOARD CONTENT -->
 <section class="dashboard">
 
 <div class="dashboard-header">
@@ -106,7 +195,6 @@ Logout
 </div>
 
 <div class="stats-grid">
-
 <div class="stat-box">
 <h2 id="healthScore">92%</h2>
 <p>Crop Health Score</p>
@@ -126,50 +214,64 @@ Logout
 <h2 id="alertCount">3</h2>
 <p>Active Alerts</p>
 </div>
-
 </div>
 
-<!-- HEALTH -->
+<!-- HEALTH METRIC PANEL -->
 <div class="health-card">
 <h3>🌱 Overall Crop Health</h3>
-<div class="progress">
+<div class="progress" style="margin-top: 15px;">
 <div class="progress-bar"></div>
 </div>
+</div>
+
+<!-- HISTORICAL LOG INTERACTION ENTRY LIST -->
+<div class="history-card">
+    <h3>📋 Historical Tracking Log</h3>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Scan No</th>
+                    <th>Disease Condition</th>
+                    <th>Confidence</th>
+                    <th>Date & Time</th>
+                </tr>
+            </thead>
+            <tbody id="history-rows">
+                <!-- Data populated dynamically via script block safely below -->
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- ALERTS -->
 <div class="alert-card">
 <h3>🚨 Active Alerts</h3>
-<p>Tomato field showing Early Blight</p>
-<p>Rice crop moderate risk</p>
-<p>Cotton pest activity increasing</p>
+<p style="margin-top:10px;">Tomato field showing Early Blight</p>
+<p style="margin-top:5px;">Rice crop moderate risk</p>
+<p style="margin-top:5px;">Cotton pest activity increasing</p>
 </div>
 
-<!-- RECENT -->
+<!-- RECENT ACTIVITY LOG PREVIEWS -->
 <div class="recent-card">
-<h3>📷 Recent Scans</h3>
-
+<h3>📷 Sample Recent Scans</h3>
 <div class="scan-row">
 <span>Tomato - Early Blight</span>
 <span class="risk">High Risk</span>
 </div>
-
 <div class="scan-row">
 <span>Rice - Healthy</span>
 <span class="healthy">Healthy</span>
 </div>
-
 <div class="scan-row">
 <span>Cotton - Aphid Attack</span>
 <span class="risk">Medium Risk</span>
 </div>
-
 </div>
 
 </section>
 
 <script>
-// AUTH CHECK
 let users = JSON.parse(localStorage.getItem("users")) || [];
 let currentEmail = localStorage.getItem("currentUser");
 
@@ -183,28 +285,45 @@ if (!user) {
     window.location.href = "login.html";
 }
 
-// USER INFO
 document.getElementById("userName").innerText = user.fullname || user.email;
 
-// SCANS
-document.getElementById("scanCount").innerText = user.scans;
+let totalScans = user.scans || 0;
+document.getElementById("scanCount").innerText = totalScans;
 
-// HEALTH
-let healthScore = 100 - (user.scans * 2);
+let healthScore = 100 - (totalScans * 2);
 if (healthScore < 50) healthScore = 50;
 
 document.getElementById("healthScore").innerText = healthScore + "%";
 document.querySelector(".progress-bar").style.width = healthScore + "%";
 
-// HEALTHY %
 let healthy = Math.max(60, healthScore - 5);
 document.getElementById("healthyPercent").innerText = healthy + "%";
 
-// ALERTS
-let alerts = Math.floor(user.scans / 3);
+let alerts = Math.floor(totalScans / 3);
 document.getElementById("alertCount").innerText = alerts;
 
-// LOGOUT
+const historyRows = document.getElementById("history-rows");
+if (user.scansHistory && user.scansHistory.length > 0) {
+    let htmlContent = "";
+    user.scansHistory.forEach((scan, index) => {
+        let scanNum = user.scansHistory.length - index;
+        let isHealthy = scan.condition === "Healthy Plant";
+        let colorStyle = isHealthy ? 'style="color: #8eff55; font-weight: bold;"' : 'style="color: #ff6868;"';
+        
+        htmlContent += `
+            <tr>
+                <td>#${scanNum}</td>
+                <td ${colorStyle}>${scan.condition}</td>
+                <td>${scan.confidence}%</td>
+                <td>${scan.date}</td>
+            </tr>
+        `;
+    });
+    historyRows.innerHTML = htmlContent;
+} else {
+    historyRows.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#aaa; padding:20px;">No scan profiles found. Use the Scan layout link to register leaves!</td></tr>`;
+}
+
 function logout() {
     localStorage.removeItem("currentUser");
     window.location.href = "login.html";
@@ -216,6 +335,7 @@ function googleTranslateElementInit() {
         {
             pageLanguage: 'en',
             includedLanguages: 'en,te,hi,ta,kn',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE, // Keeps dropdown minimal and clean
             autoDisplay: false
         },
         'google_translate_element'
