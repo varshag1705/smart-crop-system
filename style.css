@@ -141,8 +141,13 @@ body::after{
     font-size:72px;
     line-height:1.1;
     background:linear-gradient(90deg,#ffffff,#8eff55);
+
+    background-clip:text;
     -webkit-background-clip:text;
+
+    color:transparent;
     -webkit-text-fill-color:transparent;
+
     margin-bottom:20px;
 }
 
@@ -271,7 +276,9 @@ footer h3{
     .hero-buttons{
         flex-direction:column;
     }
-    #google_translate_element {
+}
+#google_translate_element 
+{
     position: fixed;
     top: 15px;
     right: 15px;
@@ -281,4 +288,65 @@ footer h3{
     border-radius: 8px;
     
 }
+.premium-upload{
+    text-align:center;
+    padding:30px;
+    border:2px dashed #00ff99;
+    transition:.4s;
+}
+
+.premium-upload:hover{
+    transform:translateY(-5px);
+    box-shadow:0 0 25px rgba(0,255,120,.25);
+}
+
+.upload-icon{
+    font-size:55px;
+    margin-bottom:10px;
+}
+
+.scan-btn{
+    margin-top:15px;
+    background:linear-gradient(
+        90deg,
+        #00ff99,
+        #00cc77
+    );
+    font-size:16px;
+}
+
+.scan-btn:hover{
+    transform:scale(1.03);
+}
+.health-box{
+    text-align:center;
+}
+
+.health-circle{
+    width:150px;
+    height:150px;
+    border-radius:50%;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    font-weight:bold;
+    color:white;
+
+    background:conic-gradient(
+    #00ff99 0deg,
+    #00ff99 280deg,
+    rgba(255,255,255,.1) 280deg
+);
+}
+
+.health-circle span{
+    background:#08140c;
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 }
